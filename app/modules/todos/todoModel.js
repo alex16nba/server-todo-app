@@ -12,8 +12,8 @@ export const TodoModel = sequelize.define('todos', {
   },
 });
 
-sequelize.sync().then(() => {
-  console.log('Todo table created successfully!');
-}).catch((error) => {
-  console.error('Unable to create table : ', error);
-});
+// sequelize.sync().then(() => {
+//   console.log('Todo table created successfully!');
+// }).catch((error) => {
+//   console.error('Unable to create table : ', error);
+// });

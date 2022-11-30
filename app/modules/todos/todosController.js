@@ -1,19 +1,18 @@
 import { pick } from 'lodash';
 import { TodoModel } from './todoModel';
-import { deleteTodo, getTodosService, updateTodo } from './TodosService';
+import {
+  createTodosService, deleteTodo, getTodosService, updateTodo,
+} from './todosService';
 
 export async function createTodo(req, res, next) {
   try {
     const data = pick(req.body, ['title']);
     data.status = 'unread';
 
-    return TodoModel
-      .create(data)
-      .then((result) => res.json({ data: result }))
-      .catch((err) => {
-        console.error('Failed to create a new record : ', err);
-        return next(err);
-      });
+    const createdTodo = await createTodosService(data);
+
+    req.resources.todos = createdTodo;
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -23,7 +22,9 @@ export async function getTodos(req, res, next) {
   try {
     const todos = await getTodosService();
 
-    return res.json({ data: todos });
+    req.resources.todos = todos;
+
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -34,7 +35,8 @@ export async function deleteTodoById(req, res, next) {
     const { todoId } = req.params;
     const deletedTodo = await deleteTodo(todoId);
 
-    return res.json({ data: deletedTodo });
+    req.resources.todos = deletedTodo;
+    return next();
   } catch (err) {
     return next(err);
   }
