@@ -1,7 +1,9 @@
 import { TodoModel } from './todoModel';
 
-export function getTodosService() {
-  return TodoModel.findAll();
+export function getTodosService(filter) {
+  return TodoModel.findAll({
+    where: filter,
+  });
 }
 
 export function createTodosService(data) {

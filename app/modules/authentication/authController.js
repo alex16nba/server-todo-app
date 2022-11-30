@@ -82,7 +82,7 @@ export function isAuthenticated(req, res, next) {
         return next(unauthorizedError);
       }
 
-      req.user = decoded;
+      req.user = decoded?.data;
 
       return next();
     });

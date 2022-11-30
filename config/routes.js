@@ -2,7 +2,7 @@ import path from 'path';
 
 export default function initRoutes(app) {
   const routesPath = path.join(__dirname, '../app/modules');
-  const routes = ['todos', 'authentication'];
+  const routes = ['todos', 'authentication', 'users'];
 
   routes.forEach((route) => {
     const finalPath = `${routesPath}/${route}/routes`;

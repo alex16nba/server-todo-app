@@ -1,5 +1,4 @@
 import { pick } from 'lodash';
-import { TodoModel } from './todoModel';
 import {
   createTodosService, deleteTodo, getTodosService, updateTodo,
 } from './todosService';
@@ -20,7 +19,14 @@ export async function createTodo(req, res, next) {
 
 export async function getTodos(req, res, next) {
   try {
-    const todos = await getTodosService();
+    const { status } = req.query;
+    const filter = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    const todos = await getTodosService(filter);
 
     req.resources.todos = todos;
 
