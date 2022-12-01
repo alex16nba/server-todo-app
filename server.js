@@ -2,7 +2,7 @@ import express from 'express';
 
 import initExpress from './config/express';
 import initHelmet from './config/helmet';
-import unitSequelize from './config/sequelize';
+import { getSequelize } from './config/sequelize';
 import initRoutes from './config/routes';
 import initErrorHandling from './config/errorHandling';
 import { PORT } from './config/index';
@@ -11,7 +11,7 @@ const app = express();
 app.set('root', __dirname);
 
 initExpress(app);
-unitSequelize();
+getSequelize();
 initHelmet(app);
 initRoutes(app);
 initErrorHandling(app);

@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../../../config/sequelize';
+import { getSequelize } from '../../../config/sequelize';
 
+const sequelize = getSequelize();
 export const TodoModel = sequelize.define('todos', {
   title: {
     type: DataTypes.STRING,
@@ -10,10 +11,8 @@ export const TodoModel = sequelize.define('todos', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
-
-// sequelize.sync().then(() => {
-//   console.log('Todo table created successfully!');
-// }).catch((error) => {
-//   console.error('Unable to create table : ', error);
-// });

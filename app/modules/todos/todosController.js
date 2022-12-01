@@ -2,11 +2,13 @@ import { pick } from 'lodash';
 import {
   createTodosService, deleteTodo, getTodosService, updateTodo,
 } from './todosService';
+import { COMPLETE_STATUS, INCOMPLETE_STATUS } from '../../constants/general';
 
 export async function createTodo(req, res, next) {
   try {
     const data = pick(req.body, ['title']);
-    data.status = 'unread';
+    data.status = INCOMPLETE_STATUS;
+    data.userId = req.user?.id;
 
     const createdTodo = await createTodosService(data);
 
@@ -20,7 +22,9 @@ export async function createTodo(req, res, next) {
 export async function getTodos(req, res, next) {
   try {
     const { status } = req.query;
-    const filter = {};
+    const filter = {
+      userId: req?.user?.id,
+    };
 
     if (status) {
       filter.status = status;
@@ -52,11 +56,12 @@ export async function markTodoCompleted(req, res, next) {
   try {
     const { todoId } = req.params;
     const updatedTodo = await updateTodo({
-      data: { status: 'completed' },
+      data: { status: COMPLETE_STATUS },
       id: todoId,
     });
 
-    return res.json({ data: updatedTodo });
+    req.resources.todos = updatedTodo;
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -66,11 +71,12 @@ export async function markTodoUncompleted(req, res, next) {
   try {
     const { todoId } = req.params;
     const updatedTodo = await updateTodo({
-      data: { status: 'unread' },
+      data: { status: INCOMPLETE_STATUS },
       id: todoId,
     });
 
-    return res.json({ data: updatedTodo });
+    req.resources.todos = updatedTodo;
+    return next();
   } catch (err) {
     return next(err);
   }
