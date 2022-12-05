@@ -1,8 +1,8 @@
 import express from 'express';
 
-import { responseToJSON } from '../../helpers/generic';
-import { isAuthenticated } from '../authentication/authController';
+// Controllers
 import { getLoggedUser } from './userController';
+import { isAuthenticated } from '../authentication/authController';
 
 const router = express.Router();
 
@@ -10,7 +10,6 @@ router.get(
   '/user/me',
   isAuthenticated,
   getLoggedUser,
-  responseToJSON('users'),
 );
 
 module.exports = router;

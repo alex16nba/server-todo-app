@@ -1,6 +1,7 @@
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
+import helmet from 'helmet';
 
 export default function initExpress(app) {
   app.use(cors());
@@ -13,6 +14,7 @@ export default function initExpress(app) {
     },
   }));
   app.use(methodOverride());
+  app.use(helmet());
 
   app.use((req, res, next) => {
     req.resources = req.resources || {};

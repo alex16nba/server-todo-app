@@ -25,5 +25,6 @@ module.exports = {
     'no-dynamic-require': 0,
     'no-use-before-define': 0,
     'linebreak-style': 0,
+    'global-require': 0,
   },
 };

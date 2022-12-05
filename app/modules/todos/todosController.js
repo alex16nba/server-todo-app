@@ -1,19 +1,25 @@
 import { pick } from 'lodash';
+
+// Services
 import {
-  createTodosService, deleteTodo, getTodosService, updateTodo,
+  createTodosService, deleteTodoService, getTodosService, updateTodoService,
 } from './todosService';
-import { COMPLETE_STATUS, INCOMPLETE_STATUS } from '../../constants/general';
+
+// Constants
+import { COMPLETE_STATUS, INCOMPLETE_STATUS } from './todoConstants';
+
+// Helpers
+import { sendApiResponse } from '../../helpers/apiResponses';
 
 export async function createTodo(req, res, next) {
   try {
-    const data = pick(req.body, ['title']);
-    data.status = INCOMPLETE_STATUS;
-    data.userId = req.user?.id;
+    const todoData = pick(req.body, ['title']);
+    todoData.status = INCOMPLETE_STATUS;
+    todoData.userId = req.user?.id;
 
-    const createdTodo = await createTodosService(data);
+    const createdTodo = await createTodosService({ data: todoData });
 
-    req.resources.todos = createdTodo;
-    return next();
+    return sendApiResponse({ res, data: createdTodo });
   } catch (err) {
     return next(err);
   }
@@ -30,11 +36,9 @@ export async function getTodos(req, res, next) {
       filter.status = status;
     }
 
-    const todos = await getTodosService(filter);
+    const todos = await getTodosService({ filter });
 
-    req.resources.todos = todos;
-
-    return next();
+    return sendApiResponse({ res, data: todos });
   } catch (err) {
     return next(err);
   }
@@ -43,10 +47,9 @@ export async function getTodos(req, res, next) {
 export async function deleteTodoById(req, res, next) {
   try {
     const { todoId } = req.params;
-    const deletedTodo = await deleteTodo(todoId);
+    const deletedTodo = await deleteTodoService({ id: todoId });
 
-    req.resources.todos = deletedTodo;
-    return next();
+    return sendApiResponse({ res, data: deletedTodo });
   } catch (err) {
     return next(err);
   }
@@ -55,13 +58,12 @@ export async function deleteTodoById(req, res, next) {
 export async function markTodoCompleted(req, res, next) {
   try {
     const { todoId } = req.params;
-    const updatedTodo = await updateTodo({
+    const updatedTodo = await updateTodoService({
       data: { status: COMPLETE_STATUS },
       id: todoId,
     });
 
-    req.resources.todos = updatedTodo;
-    return next();
+    return sendApiResponse({ res, data: updatedTodo });
   } catch (err) {
     return next(err);
   }
@@ -70,13 +72,12 @@ export async function markTodoCompleted(req, res, next) {
 export async function markTodoUncompleted(req, res, next) {
   try {
     const { todoId } = req.params;
-    const updatedTodo = await updateTodo({
+    const updatedTodo = await updateTodoService({
       data: { status: INCOMPLETE_STATUS },
       id: todoId,
     });
 
-    req.resources.todos = updatedTodo;
-    return next();
+    return sendApiResponse({ res, data: updatedTodo });
   } catch (err) {
     return next(err);
   }

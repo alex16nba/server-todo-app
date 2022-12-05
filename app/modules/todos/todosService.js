@@ -1,16 +1,19 @@
-import { TodoModel } from './todoModel';
+// Configs
+import { getSequelize } from '../../../config/sequelize';
 
-export function getTodosService(filter) {
+const { models: { Todos: TodoModel } } = getSequelize();
+
+export function getTodosService({ filter }) {
   return TodoModel.findAll({
     where: filter,
   });
 }
 
-export function createTodosService(data) {
+export function createTodosService({ data }) {
   return TodoModel.create(data);
 }
 
-export function deleteTodo(id) {
+export function deleteTodoService({ id }) {
   return TodoModel.destroy({
     where: {
       id,
@@ -18,7 +21,7 @@ export function deleteTodo(id) {
   });
 }
 
-export function updateTodo({ data, id }) {
+export function updateTodoService({ data, id }) {
   return TodoModel.update(
 	  data,
 	  {

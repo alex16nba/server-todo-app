@@ -1,9 +1,11 @@
 import { DataTypes } from 'sequelize';
-import { getSequelize } from '../../../config/sequelize';
+
+// Configs
+import { getSequelize } from '../../config/sequelize';
 
 const sequelize = getSequelize();
 
-export const UserModel = sequelize.define('users', {
+export const UserModel = sequelize.define('Users', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,

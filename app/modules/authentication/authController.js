@@ -1,10 +1,21 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+// Configs
+import { JWT_SECRET } from '../../../config/envConfig';
+
+// Services
 import { createUserService, getOneUserService } from '../users/userService';
-import { JWT_SECRET } from '../../../config';
-import { saltRounds, unauthorizedError } from '../../constants/general';
-import { createJwtToken } from '../../helpers/generic';
+
+// Constants
+import { SALT_ROUNDS } from './authConstants';
+import { emailOrPasswordWrong, unauthorizedError } from '../../constants/errorCodes';
+
+// Helpers
+import { createJwtToken } from './authHelpers';
+import { sendApiResponse } from '../../helpers/apiResponses';
+
+// Validations
 import { validateRegister } from './authValidation';
 
 export async function userRegister(req, res, next) {
@@ -21,17 +32,19 @@ export async function userRegister(req, res, next) {
     const user = await getOneUserService({ email });
 
     if (user) {
-      return next({ messages: 'error-user' });
+      // We don't want to send an error if the user already exists
+      // The UI should show a generic message to verify the email
+      return sendApiResponse({ res, data: {} });
     }
 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const userData = {
       email,
       password: hashedPassword,
       name,
     };
 
-    const createdUser = await createUserService(userData);
+    const createdUser = await createUserService({ data: userData });
 
     const jwtToken = createJwtToken(createdUser);
 
@@ -41,7 +54,7 @@ export async function userRegister(req, res, next) {
     };
     delete userRes.password;
 
-    return res.json({ data: userRes });
+    return sendApiResponse({ res, data: userRes });
   } catch (err) {
     return next(err);
   }
@@ -50,16 +63,16 @@ export async function userRegister(req, res, next) {
 export async function userLogin(req, res, next) {
   try {
     const { email, password } = req.body;
-    const user = await getOneUserService({ email });
+    const user = await getOneUserService({ filter: { email } });
 
     if (!user) {
-      return next({ messages: 'email-or-password-wrong' });
+      return next(emailOrPasswordWrong);
     }
 
     const comparePassword = await bcrypt.compare(password, user.password);
 
     if (!comparePassword) {
-      return next({ messages: 'email-or-password-wrong' });
+      return next(emailOrPasswordWrong);
     }
 
     const jwtToken = createJwtToken(user);
@@ -71,7 +84,7 @@ export async function userLogin(req, res, next) {
 
     delete userRes.password;
 
-    return res.json({ data: userRes });
+    return sendApiResponse({ res, data: userRes });
   } catch (err) {
     return next(err);
   }

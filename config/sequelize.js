@@ -1,9 +1,12 @@
 import Sequelize from 'sequelize';
+
+// Configs
 import {
   DB_DATABASE_NAME, DB_HOST, DB_PASSWORD, DB_USER,
-} from './index';
+} from './envConfig';
 
 let sequelizeConnection;
+
 export function getSequelize() {
   if (!sequelizeConnection) {
     return createConnection();
@@ -30,14 +33,7 @@ function createConnection() {
     },
   );
 
-  // eslint-disable-next-line
-  const { TodoModel } = require("../app/modules/todos/todoModel");
-  // eslint-disable-next-line
-  const { UserModel } = require('../app/modules/users/userModel');
-  UserModel.hasMany(TodoModel, {
-    foreignKey: 'userId',
-  });
-  TodoModel.belongsTo(UserModel);
+  require('../app/models');
 
   sequelizeConnection.authenticate().then(() => {
     console.log('Connection has been established successfully.');
