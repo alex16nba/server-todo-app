@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 
 // Configs
 import {
+  DB_CONNECTION_LIMIT,
   DB_DATABASE_NAME, DB_HOST, DB_PASSWORD, DB_USER,
 } from './envConfig';
 
@@ -23,12 +24,12 @@ function createConnection() {
     {
       host: DB_HOST,
       dialect: 'mysql',
+      logging: false,
       pool: {
-        max: 10,
+        max: +DB_CONNECTION_LIMIT,
         min: 0,
         acquire: 30000,
         idle: 10000,
-        logging: false,
       },
     },
   );

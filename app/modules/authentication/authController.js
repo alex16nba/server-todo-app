@@ -20,7 +20,7 @@ import { validateRegister } from './authValidation';
 
 export async function userRegister(req, res, next) {
   try {
-    const { email, password, name } = req.body;
+    const { email, name } = req.body;
 
     // Validations
     const validationErrors = validateRegister(req.body);
@@ -29,15 +29,16 @@ export async function userRegister(req, res, next) {
       return next(validationErrors);
     }
 
-    const user = await getOneUserService({ email });
+    const filterUser = {
+      email,
+    };
+    const user = await getOneUserService({ filter: filterUser });
 
     if (user) {
-      // We don't want to send an error if the user already exists
-      // The UI should show a generic message to verify the email
-      return sendApiResponse({ res, data: {} });
+      return next(unauthorizedError);
     }
 
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(req.body?.password, SALT_ROUNDS);
     const userData = {
       email,
       password: hashedPassword,
@@ -48,11 +49,9 @@ export async function userRegister(req, res, next) {
 
     const jwtToken = createJwtToken(createdUser);
 
-    const userRes = {
-      ...createdUser.dataValues,
-      token: jwtToken,
-    };
-    delete userRes.password;
+    // Remove the password from api response
+    const { password, ...userRes } = createdUser.dataValues;
+    userRes.token = jwtToken;
 
     return sendApiResponse({ res, data: userRes });
   } catch (err) {
@@ -62,14 +61,17 @@ export async function userRegister(req, res, next) {
 
 export async function userLogin(req, res, next) {
   try {
-    const { email, password } = req.body;
-    const user = await getOneUserService({ filter: { email } });
+    const filterUser = {
+      email: req.body?.email,
+    };
+
+    const user = await getOneUserService({ filter: filterUser });
 
     if (!user) {
       return next(emailOrPasswordWrong);
     }
 
-    const comparePassword = await bcrypt.compare(password, user.password);
+    const comparePassword = await bcrypt.compare(req?.body?.password, user.password);
 
     if (!comparePassword) {
       return next(emailOrPasswordWrong);
@@ -77,12 +79,9 @@ export async function userLogin(req, res, next) {
 
     const jwtToken = createJwtToken(user);
 
-    const userRes = {
-      ...user.dataValues,
-      token: jwtToken,
-    };
-
-    delete userRes.password;
+    // Remove the password from api response
+    const { password, ...userRes } = user.dataValues;
+    userRes.token = jwtToken;
 
     return sendApiResponse({ res, data: userRes });
   } catch (err) {
